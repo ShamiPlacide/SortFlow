@@ -2,7 +2,6 @@
 from pathlib import Path
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 
 IMG_SIZE = (224, 224)
 BATCH_SIZE = 32
@@ -32,8 +31,7 @@ def load_dataset(directory, shuffle=False, augment=False, batch_size=BATCH_SIZE,
     )
     names = ds.class_names
     if augment:
-        ds = ds.map(lambda x, y: (augmentation(x, training=True), y), num_parallel_calls=AUTOTUNE)
-    ds = ds.map(lambda x, y: (preprocess_input(x), y), num_parallel_calls=AUTOTUNE)
+      ds = ds.map(lambda x, y: (augmentation(x, training=True), y), num_parallel_calls=AUTOTUNE)
     return ds.prefetch(AUTOTUNE), names
 
 
@@ -47,11 +45,10 @@ def compute_class_weights(directory):
 
 
 def preprocess_image(image):
-    """Single image (path, bytes-like file object, or PIL image) -> model-ready batch of shape (1,224,224,3).
-    Used by the prediction API so inference matches training exactly."""
-    from PIL import Image
-    if not isinstance(image, Image.Image):
-        image = Image.open(image)
-    image = image.convert('RGB').resize(IMG_SIZE)
-    arr = np.asarray(image, dtype=np.float32)
-    return preprocess_input(np.expand_dims(arr, axis=0))
+  """Single image -> raw float32 batch (1,224,224,3), values 0-255.
+  Scaling to 0-1 happens inside the model."""
+  from PIL import Image
+  if not isinstance(image, Image.Image):
+    image = Image.open(image)
+  image = image.convert('RGB').resize(IMG_SIZE)
+  return np.expand_dims(np.asarray(image, dtype=np.float32), axis=0)

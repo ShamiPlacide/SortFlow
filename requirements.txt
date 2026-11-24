@@ -1,0 +1,12 @@
+tensorflow==2.15.1
+numpy<2
+pillow
+pandas
+scikit-learn
+matplotlib
+fastapi==0.115.0
+uvicorn==0.30.6
+python-multipart
+requests
+streamlit==1.37.1
+pyarrow<17

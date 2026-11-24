@@ -28,19 +28,19 @@ def build_baseline(num_classes=6, lr=1e-3):
     return _compile(model, lr)
 
 
-def build_custom(num_classes=6, lr=1e-3, dropout=0.4, l2=1e-4):
-    """Optimized custom CNN: BatchNorm, Dropout, L2, GlobalAveragePooling."""
-    reg = regularizers.l2(l2)
-    inputs = layers.Input(shape=IMG_SIZE + (3,))
-    x = layers.Rescaling(1. / 255)(inputs)
-    for filters in (32, 64, 128, 256):
-        x = layers.Conv2D(filters, 3, padding='same', kernel_regularizer=reg)(x)
-        x = layers.BatchNormalization()(x)
-        x = layers.Activation('relu')(x)
-        x = layers.MaxPooling2D()(x)
-        x = layers.Dropout(0.2)(x)
-    x = layers.GlobalAveragePooling2D()(x)
-    x = layers.Dense(128, activation='relu', kernel_regularizer=reg)(x)
-    x = layers.Dropout(dropout)(x)
-    outputs = layers.Dense(num_classes, activation='softmax')(x)
-    return _compile(models.Model(inputs, outputs, name='custom_cnn'), lr)
+def build_custom(num_classes=6, lr=1e-3, dropout=0.3, l2=1e-5, filters=(32, 64, 128, 256)):
+  reg = regularizers.l2(l2)
+  inputs = layers.Input(shape=IMG_SIZE + (3,))
+  x = layers.Rescaling(1. / 255)(inputs)
+  for f in filters:
+    for _ in range(2):
+      x = layers.Conv2D(f, 3, padding='same', use_bias=False, kernel_regularizer=reg)(x)
+      x = layers.BatchNormalization()(x)
+      x = layers.Activation('relu')(x)
+    x = layers.MaxPooling2D()(x)
+    x = layers.Dropout(0.1)(x)
+  x = layers.GlobalAveragePooling2D()(x)
+  x = layers.Dense(256, activation='relu', kernel_regularizer=reg)(x)
+  x = layers.Dropout(dropout)(x)
+  outputs = layers.Dense(num_classes, activation='softmax')(x)
+  return _compile(models.Model(inputs, outputs, name='custom_cnn'), lr)

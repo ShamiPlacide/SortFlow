@@ -1,7 +1,5 @@
-data/train/*
-data/test/*
 data/uploads/
-!data/**/.gitkeep
+*.db
+kaggle.json
 __pycache__/
 .venv/
-*.db

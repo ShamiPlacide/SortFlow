@@ -1,7 +1,7 @@
 import io, os, shutil, time, uuid
 from pathlib import Path
 from fastapi import FastAPI, UploadFile, File, Form, BackgroundTasks, HTTPException
-from src import db, prediction, retrain as rt
+from data.test.src import retrain as rt, prediction, db
 
 START = time.time()
 THRESHOLD = int(os.getenv('RETRAIN_THRESHOLD', 50))

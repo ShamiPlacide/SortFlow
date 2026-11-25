@@ -1,4 +1,6 @@
 FROM python:3.11-slim
+ENV PIP_DEFAULT_TIMEOUT=100 \
+    PIP_RETRIES=10
 WORKDIR /app
 COPY requirements-docker.txt .
 RUN pip install --no-cache-dir -r requirements-docker.txt

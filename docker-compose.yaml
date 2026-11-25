@@ -17,9 +17,21 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.ui
+
     environment:
       - API_URL=http://nginx
     ports:
       - "8501:8501"
     depends_on:
       - nginx
+  
+  #   api:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.api
+  #     network: host
+  # ui:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.ui
+  #     network: host

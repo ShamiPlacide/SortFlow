@@ -1,9 +1,7 @@
-tensorflow-cpu==2.15.1
+tensorflow==2.21.0
 numpy<2
 pillow
 fastapi==0.115.0
 uvicorn==0.30.6
 python-multipart
 requests
-pandas
-streamlit==1.37.1

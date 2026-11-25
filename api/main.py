@@ -2,8 +2,6 @@ import io, os, shutil, time, uuid
 from pathlib import Path
 from fastapi import FastAPI, UploadFile, File, Form, BackgroundTasks, HTTPException
 from src import db, prediction, retrain as rt
-from starlette.concurrency import run_in_threadpool
-
 
 START = time.time()
 THRESHOLD = int(os.getenv('RETRAIN_THRESHOLD', 50))
@@ -36,9 +34,8 @@ def health():
 @app.post('/predict')
 async def predict(file: UploadFile = File(...)):
     t = time.time()
-    data = await file.read()
     try:
-        result = await run_in_threadpool(prediction.predict, io.BytesIO(data))
+        result = prediction.predict(io.BytesIO(await file.read()))
     except Exception as e:
         raise HTTPException(400, f'Could not predict: {e}')
     db.log_prediction(result['class'], result['confidence'], (time.time() - t) * 1000)

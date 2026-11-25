@@ -1,0 +1,6 @@
+FROM python:3.11-slim
+WORKDIR /app
+RUN pip install --no-cache-dir streamlit==1.37.1 pandas requests
+COPY ui ./ui
+ENV PORT=8501
+CMD ["sh", "-c", "streamlit run ui/app.py --server.port ${PORT} --server.address 0.0.0.0"]

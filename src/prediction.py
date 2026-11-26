@@ -11,7 +11,7 @@ _model, _names = None, None
 def load_model(force=False):
     global _model, _names
     if _model is None or force:
-        _model = tf.keras.models.load_model(MODEL_PATH compile=False)
+        _model = tf.keras.models.load_model(MODEL_PATH, compile=False)
         _names = json.loads(CLASSES_PATH.read_text())
     return _model, _names
 

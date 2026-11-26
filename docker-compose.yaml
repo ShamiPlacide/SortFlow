@@ -5,6 +5,11 @@ services:
       dockerfile: Dockerfile.api
     expose:
       - "8000"
+    volumes:
+      - ./data/uploads:/app/data/uploads
+      - ./data/app.db:/app/data/app.db
+      - ./models:/app/models
+
   nginx:
     image: nginx:alpine
     ports:

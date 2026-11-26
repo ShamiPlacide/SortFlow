@@ -34,8 +34,12 @@ def retrain(epochs=3, lr=1e-4):
             ds = ds.concatenate(p.unbatch())
         ds = ds.shuffle(1000).batch(32).prefetch(tf.data.AUTOTUNE)
 
-        model.optimizer.learning_rate.assign(lr)   # low LR: fine-tune, don't overwrite
-        model.fit(ds, epochs=epochs, verbose=0)
+        model.compile(
+            optimizer=tf.keras.optimizers.Adam(learning_rate=lr),   # low LR: fine-tune, don't overwrite
+            loss='categorical_crossentropy',
+            metrics=['accuracy', tf.keras.metrics.Precision(name='precision'),
+                    tf.keras.metrics.Recall(name='recall')],
+)        model.fit(ds, epochs=epochs, verbose=0)
 
         acc = None
         if _has_images(TEST_DIR):

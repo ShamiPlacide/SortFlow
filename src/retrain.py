@@ -45,7 +45,7 @@ def retrain(epochs=3, lr=1e-4):
         acc = None
         if _has_images(TEST_DIR):
             test_ds, _ = load_dataset(TEST_DIR, class_names=names)
-            res = dict(zip(model.metrics_names, model.evaluate(test_ds, verbose=0)))
+            res = model.evaluate(test_ds, verbose=0, return_dict=True)
             acc = float(res['accuracy'])
 
         VERSIONS.mkdir(parents=True, exist_ok=True)

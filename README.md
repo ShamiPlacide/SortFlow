@@ -4,9 +4,9 @@ SortFlow classifies a photo of a waste item into one of six material classes (`c
 
 | | |
 |---|---|
-| **Video demo** | `<ADD YOUTUBE LINK>` |
-| **Live app (AWS EC2)** | UI: `http://<PUBLIC_IP>:8501` |
-| **Live API docs** | `http://<PUBLIC_IP>:8000/docs` |
+| **Video demo** | `https://youtu.be/SlDEkIFzVjY` |
+| **Live app (AWS EC2)** | UI: `http://51.20.91.175:8501` |
+| **Live API docs** | `http://51.20.91.175:8000/docs` |
 | **Notebook** | [`notebook/waste_classifier.ipynb`](notebook/waste_classifier.ipynb) |
 
 ## Why this project
@@ -168,31 +168,25 @@ For an interactive view with charts, run `locust -f locustfile.py --host http://
 
 ### Results
 
-**Codespaces (load generator and API on the same machine)**
+**AWS EC2 (`m7i-flex.large`), load generated from Codespaces**
 
 | API containers | `/predict` requests | Failures | Avg latency (ms) | Median (ms) | p95 (ms) | Requests/s |
 |---|---|---|---|---|---|---|
-| 1 | `<fill>` | `<fill>` | `<fill>` | `<fill>` | `<fill>` | `<fill>` |
-| 2 | `<fill>` | `<fill>` | `<fill>` | `<fill>` | `<fill>` | `<fill>` |
-| 3 | `<fill>` | `<fill>` | `<fill>` | `<fill>` | `<fill>` | `<fill>` |
+| 1 | 537 | 0 | 1691 | 1800 | 2100 | 8.99 |
+| 2 | 528 | 0 | 1693 | 1700 | 2100 | 8.83 |
+| 3 | 526 | 0 | 1763 | 1800 | 2200 | 8.82 |
 
-**AWS EC2 (`t3.medium`), load generated from Codespaces**
+Each run used 30 simulated users, a spawn rate of 5 per second and 59 seconds, with Locust running in Codespaces against `http://51.20.91.175:8000` and a one-minute wait after each scale change. The Requests/s column is the average over the whole run, including ramp-up. Once all 30 users were active, total throughput stayed at about 10 to 11 requests/s in every run. All three runs had zero failures. `/health` averaged about 1.5 to 1.7 s under load because requests queue behind predictions.
 
-| API containers | `/predict` requests | Failures | Avg latency (ms) | Median (ms) | p95 (ms) | Requests/s |
-|---|---|---|---|---|---|---|
-| 1 | `<fill>` | `<fill>` | `<fill>` | `<fill>` | `<fill>` | `<fill>` |
-| 2 | `<fill>` | `<fill>` | `<fill>` | `<fill>` | `<fill>` | `<fill>` |
-| 3 | `<fill>` | `<fill>` | `<fill>` | `<fill>` | `<fill>` | `<fill>` |
+You can view the run by opening the aws1.html (aws2, aws3) files and get the thorough test result.
 
-Screenshots: `<ADD LINKS OR IMAGES FROM THE LOCUST UI>`
-
-**Interpretation:** `<WRITE 2-3 SENTENCES: how latency and throughput changed with more containers, and why. Inference is CPU-bound, so containers sharing the same few cores stop helping once the CPU is saturated.>`
+**Interpretation:** Adding containers did not improve performance on this instance. Average `/predict` latency stayed at about 1.7 s (1691, 1693 and 1763 ms for 1, 2 and 3 containers) and throughput stayed at about 8.8 requests/s for `/predict` (about 11 requests/s in total). The small differences are within normal run-to-run noise, and the third container was slightly slower. The most likely reason is that inference is CPU-bound and the `m7i-flex.large` has only 2 vCPUs: TensorFlow already spreads each prediction across the available cores, so extra containers just split the same CPU (and each one loads its own copy of the model into memory). Meaningful horizontal scaling would need more vCPUs or more than one instance behind a load balancer. Zero failures at every scale shows the service stays stable under this load.
 
 Each API container has its own SQLite file and upload folder, so uploads and retraining are not shared between replicas. The retraining demo uses a single API container.
 
 ## Deployment on AWS
 
-The app runs on one **EC2 `t3.medium`** instance (Ubuntu 24.04, 30 GB disk) using the same `docker-compose.yaml` as local development. The security group allows SSH from one IP and ports 8000 and 8501. An Elastic IP gives the app a stable address.
+The app runs on one **EC2 `m7i-flex.large`** instance (2 vCPU, 8 GB RAM) (Ubuntu 24.04, 30 GB disk) using the same `docker-compose.yaml` as local development. The security group allows SSH from one IP and ports 8000 and 8501. An Elastic IP gives the app a stable address.
 
 ```bash
 sudo apt update && sudo apt install -y docker.io docker-compose-v2 git

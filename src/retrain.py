@@ -39,7 +39,8 @@ def retrain(epochs=3, lr=1e-4):
             loss='categorical_crossentropy',
             metrics=['accuracy', tf.keras.metrics.Precision(name='precision'),
                     tf.keras.metrics.Recall(name='recall')],
-)       model.fit(ds, epochs=epochs, verbose=0)
+        )
+        model.fit(ds, epochs=epochs, verbose=0)
 
         acc = None
         if _has_images(TEST_DIR):
